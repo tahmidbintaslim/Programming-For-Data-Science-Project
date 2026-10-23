@@ -69,6 +69,6 @@ course project.
 
 ## License
 
-The code and notebook text are under the MIT License, see `LICENSE`. The
-datasets in `Data/` and the illustrations in `images/` come from third
-parties and keep their own terms.
+No license. This is group coursework, and reusing it needs permission from
+every co-author. The datasets in `Data/` and the illustrations in `images/`
+come from third parties and keep their own terms.
