@@ -11,8 +11,8 @@ estimates how many trees would be needed to absorb that amount.
 | --- | --- |
 | `Global.ipynb` | The project notebook, with its saved outputs and charts |
 | `Data/global.1751_2014.csv` | Global fossil-fuel and cement emissions by source, 1751 to 2014, from CDIAC (Oak Ridge National Laboratory). Read by the notebook. |
-| `Data/emission data.csv` | Emissions by country and region, 1751 to 2014, from the Kaggle "CO2 and GHG emission data" set. Read by the notebook for hypothesis 2. |
-| `Data/nation.1751_2014.csv`, `Data/region.1751_2014.csv` | National and regional CDIAC series. Used by the earlier `National.ipynb` and `Regional.ipynb` notebooks, which were removed in June 2020 and are still in git history (commit `2ed7db2`). `Global.ipynb` does not read them. |
+| `Data/emission data.csv` | Cumulative CO2 emissions in tonnes by country and region, 1751 to 2014, from the Kaggle "CO2 and GHG emission data" set. Each year's value is the running total since 1751 (the `World` row reaches 1.47 trillion tonnes in 2014). Read by the notebook for hypothesis 2. |
+| `Data/nation.1751_2014.csv`, `Data/region.1751_2014.csv` | National and regional CDIAC series. Used by the earlier `National.ipynb` and `Regional.ipynb` notebooks, which were deleted in June 2020 (commit `518106a`); their last versions are in commit `2ed7db2`. `Global.ipynb` does not read them. |
 | `images/` | Illustrations shown at the top of the notebook |
 | `Instructions.txt` | Links to Git, Anaconda, Python and open-data resources collected for the project team |
 | `_config.yml` | GitHub Pages theme setting |
@@ -25,11 +25,14 @@ estimates how many trees would be needed to absorb that amount.
    moving-average and exponential-smoothing curves, then fits two models:
    statsmodels `ExponentialSmoothing` with an additive trend (called TESMA
    in the notebook) and SARIMA with parameters chosen by an AIC grid
-   search. They score 96.4 and 95.9 on 100 minus MAPE. The notebook uses
-   SARIMA to forecast 2015 to 2030, then splits the 2030 value by source
-   using historical shares.
-2. **Hypothesis 2, correlation.** Merges the CDIAC series with the `World`
-   row of the Kaggle dataset and plots a correlation heatmap.
+   search. They score 96.4 and 95.9 on 100 minus MAPE, measured on the same
+   1751 to 2014 data the models were fit to (there is no held-out test
+   period). The notebook uses SARIMA to forecast 2015 to 2030, then splits
+   the 2030 value by source using each source's average share over 1751 to
+   2014.
+2. **Hypothesis 2, correlation.** Merges the CDIAC annual series with the
+   cumulative `World` row of the Kaggle dataset and plots a correlation
+   heatmap. The CDIAC total and `World` correlate at 0.99.
 3. **Hypothesis 3, trees.** Converts the 2030 forecast to pounds and divides
    it by 48 pounds of CO2 absorbed per tree per year.
 
@@ -43,19 +46,24 @@ flaring 0.9%, and about 565 billion trees for hypothesis 3.
   introduction says (multiply by 3.667 for CO2). Later cells call the 2030
   forecast CO2, and hypothesis 3 uses it without that conversion, so the
   tree estimate is low by a factor of about 3.7.
-- Hypothesis 2 compares two emission series, the CDIAC total and the Kaggle
-  `World` row. The high correlation shows the two datasets agree; it does
-  not measure the greenhouse effect itself.
+- Hypothesis 2 correlates annual emissions (CDIAC) with cumulative
+  emissions (Kaggle `World`). Both series rise over time, so a high
+  correlation is expected; it does not show that the two datasets agree,
+  and it does not measure the greenhouse effect.
 - The notebook reads its CSV files from an absolute Windows path
   (`C:\Users\tahmi\Documents\GitHub\...`).
 
 ## How to run
 
 The notebook was last run with Python 3.7.7 and 2020 versions of the
-libraries below. It has not been tested against current releases.
+libraries below. It does not run on current statsmodels: the first code
+cell imports `statsmodels.tsa.arima_model`, removed in statsmodels 0.13, and
+the decomposition cell passes `freq=`, which 0.13 also removed. Use
+statsmodels 0.12, which needs Python 3.9 or older; other libraries may also
+need 2020-era versions.
 
 ```bash
-pip install jupyter pandas numpy matplotlib seaborn scikit-learn statsmodels tqdm
+pip install jupyter pandas numpy matplotlib seaborn scikit-learn "statsmodels<0.13" tqdm
 jupyter notebook Global.ipynb
 ```
 
